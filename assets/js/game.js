@@ -20,7 +20,7 @@ var fightOrSkip = function () {
     }
 
     // convert prompt fight to all lowercase so we can check with less options
-    promptFight = promptFight.toLowerCase;
+    promptFight = promptFight.toLowerCase();
 
     if (promptFight === "skip") {
         //confirm player wants to skip
@@ -30,7 +30,7 @@ var fightOrSkip = function () {
         if (confirmSkip) {
             window.alert(playerInfo.name + " has decided to skip this fight. Goodbye!");
             // subtract money from playerMoney for skipping
-            playerInfo.money = playerInfo.money - 10;
+            playerInfo.money = Math.max(0, playerInfo.money - 10);
 
             return true;
         }
@@ -104,11 +104,13 @@ var startGame = function() {
     playerInfo.reset();
     // fight each enemy-robot by looping over them and fighting them one at a time
     for (var i = 0; i < enemyInfo.length; i++) {
+        // check player stats
+        console.log(playerInfo);
+
         // if player is still alive, keep fighting
         if (playerInfo.health > 0) {
             // let player know what round they are in, remember that arrays start at 0 so it needs to have 1 added to it
             window.alert('Welcome to Robot Gladiators! Round ' + (i + 1));
-            debugger;
 
             // pick new enemy to fight based on the index of the enemy Names array
             var pickedEnemyObj = enemyInfo[i];
@@ -141,13 +143,26 @@ var startGame = function() {
 // function to end the entire game
 var endGame = function() {
     window.alert("The game has now ended. Let's see how you did!");
-    if (playerInfo.health > 0) {
-        window.alert("Great job, you've survived the game! You now have a score of " + playerInfo.money + ".");
-    } else {
-        window.alert("You've lost your robot in battle.");
+
+    //check localStorage for high score, if its not there, use 0
+    var highScore = localStorage.getItem("highscore");
+    if (highScore === null) {
+        highScore = 0;
     }
 
+    // if player has more money than the high score, player has new high score!
+    if (playerInfo.money > highScore){
+        localStorage.setItem("highscore", playerInfo.money);
+        localStorage.setItem("name", playerInfo.name);
+
+        alert(playerInfo.name + " now has the high score of " + playerInfo.money + "!");
+    }  else {
+        alert(playerInfo.name + " did not beat the high score of " + highScore + ". Maybe next time!");
+    }
+
+    // ask player if they'd like to play again
     var playAgainConfirm =  window.confirm("Would you like to play again?");
+
     if (playAgainConfirm) {
         startGame();
     } else {
@@ -168,10 +183,10 @@ var shop = function() {
     // use switch to carry out action
     switch (shopOptionPrompt) {
         case 1:
-            playerInfo.refillHealth;
+            playerInfo.refillHealth();
             break;
         case 2:
-            playerInfo.upgradeAttack;
+            playerInfo.upgradeAttack();
             break;
         case 3:
             window.alert("Leaving the store.");
